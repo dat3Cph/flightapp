@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Purpose:
@@ -29,9 +30,18 @@ public class FlightReader {
         try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
-            flightInfoList.forEach(f->{
-                System.out.println("\n"+f);
+           // flightReader.averageDurationPerAirline(flightList);
+            flightReader.flightsArrInFrankfurt(flightList);
+
+            //flightReader.totalFlightTimeForSpecificAirline2(flightList);
+            /*
+            flightInfoList.forEach(f -> {
+                System.out.println("\n" + f);
             });
+
+             */
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
