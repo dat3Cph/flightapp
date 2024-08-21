@@ -29,18 +29,18 @@ public class FlightReader {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
             flightInfoList.forEach(f->{
-                System.out.println("\n"+f);
+                //System.out.println("\n"+f);
             });
+
+            String airlineName = "Lufthansa";
+            List<DTOs.FlightInfo> airlineList = getAirlineList(flightInfoList, airlineName);
+            Duration averageFlightTime = calculateAverageFlightTime(airlineList);
+            displayAverageFlightTime(averageFlightTime);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-//    public List<FlightDTO> jsonFromFile(String fileName) throws IOException {
-//        List<FlightDTO> flights = getObjectMapper().readValue(Paths.get(fileName).toFile(), List.class);
-//        return flights;
-//    }
 
 
     public List<DTOs.FlightInfo> getFlightInfoDetails(List<DTOs.FlightDTO> flightList) {
@@ -69,5 +69,24 @@ public class FlightReader {
         return flightList;
     }
 
+    public static Duration calculateAverageFlightTime(List<DTOs.FlightInfo> flightInfoList){
+        List<Duration> durationOfFlightList = flightInfoList.stream().map(DTOs.FlightInfo::getDuration).toList();
+        OptionalDouble averageSeconds = durationOfFlightList.stream().mapToLong(Duration::getSeconds).average();
+        Duration flightTime = null;
+
+        if (averageSeconds.isPresent()){
+            flightTime = Duration.ofSeconds((long) averageSeconds.getAsDouble());
+        }
+
+        return flightTime;
+    }
+
+    public static void displayAverageFlightTime(Duration flightTime){
+        System.out.println(flightTime);
+    }
+
+    public static List<DTOs.FlightInfo> getAirlineList(List<DTOs.FlightInfo> flightInfoList, String airlineName){
+        return flightInfoList.stream().filter(flightInfo -> Objects.equals(flightInfo.getAirline(), airlineName)).toList();
+    }
 
 }
