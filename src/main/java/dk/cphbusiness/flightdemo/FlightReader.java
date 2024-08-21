@@ -28,9 +28,24 @@ public class FlightReader {
         try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
-            flightInfoList.forEach(f->{
-                System.out.println("\n"+f);
-            });
+
+            OptionalDouble averageTime = flightInfoList.stream()
+                    .filter(info -> info.getAirline().equals("Lufthansa"))
+                    .map(DTOs.FlightInfo::getDuration) // Map to durations
+                    .mapToLong(Duration::toMinutes) // Convert Duration to minutes
+                    .average(); // Calculate average
+
+
+            //List<DTOs.FlightInfo> flightInfoList1 = flightInfoList.stream()
+            //     .filter(info -> info.getAirline()).toList();
+            // flightInfoList1.forEach(System.out::println);
+
+            //flightInfoList.forEach(f->{
+
+
+            //    System.out.println("\n"+f);
+            //});
+
         } catch (IOException e) {
             e.printStackTrace();
         }
