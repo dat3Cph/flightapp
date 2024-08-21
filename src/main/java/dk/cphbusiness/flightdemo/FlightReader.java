@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Purpose:
@@ -22,18 +23,33 @@ import java.util.*;
  * @author: Thomas Hartmann
  */
 public class FlightReader {
-
+//her streamer man.
     public static void main(String[] args) {
         FlightReader flightReader = new FlightReader();
+        List<DTOs.FlightInfo> flightInfoList = new ArrayList<>();
         try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
-            List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
+            flightInfoList = flightReader.getFlightInfoDetails(flightList);
             flightInfoList.forEach(f->{
                 System.out.println("\n"+f);
             });
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //AverageDuration for Turkish Airline
+
+        List<Duration> durations = flightInfoList.stream()
+                .filter(flightInfo -> "Royal Jordanian".equals(flightInfo.getAirline()))
+                .map(DTOs.FlightInfo::getDuration)
+                .collect(Collectors.toList());
+
+        OptionalDouble averageDuration = durations.stream()
+                .mapToLong(Duration::toMinutes)
+                .average();
+        System.out.println(durations);
+
+        averageDuration.ifPresent(System.out::println);
     }
 
 
@@ -42,7 +58,7 @@ public class FlightReader {
 //        return flights;
 //    }
 
-
+//her benytter man sig af attributerne for at lave listen. Her er man fri for at instansier hvert objekt.
     public List<DTOs.FlightInfo> getFlightInfoDetails(List<DTOs.FlightDTO> flightList) {
         List<DTOs.FlightInfo> flightInfoList = flightList.stream().map(flight -> {
             Duration duration = Duration.between(flight.getDeparture().getScheduled(), flight.getArrival().getScheduled());
@@ -62,12 +78,12 @@ public class FlightReader {
         return flightInfoList;
     }
 
+//konvertere fra json fil til java sprog.
     public List<DTOs.FlightDTO> getFlightsFromFile(String filename) throws IOException {
         DTOs.FlightDTO[] flights = new Utils().getObjectMapper().readValue(Paths.get(filename).toFile(), DTOs.FlightDTO[].class);
 
         List<DTOs.FlightDTO> flightList = Arrays.stream(flights).toList();
         return flightList;
     }
-
 
 }
