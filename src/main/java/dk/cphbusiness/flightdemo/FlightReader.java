@@ -36,7 +36,7 @@ public class FlightReader {
         }
     }
 
-
+//test
 //    public List<FlightDTO> jsonFromFile(String fileName) throws IOException {
 //        List<FlightDTO> flights = getObjectMapper().readValue(Paths.get(fileName).toFile(), List.class);
 //        return flights;
