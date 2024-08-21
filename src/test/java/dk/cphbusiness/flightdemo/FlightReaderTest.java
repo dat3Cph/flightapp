@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +41,8 @@ class FlightReaderTest {
         try {
             List<DTOs.FlightDTO> flights = reader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = reader.getFlightInfoDetails(flights);
-            assertEquals("Royal Jordanian", flightInfoList.get(0).getAirline());
+            assertEquals(LocalDateTime.of(2024, 8, 15, 1, 25), flightInfoList.get(0).getArrival());
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);
