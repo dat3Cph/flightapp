@@ -3,6 +3,7 @@ package dk.cphbusiness.flightdemo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dk.cphbusiness.utils.Utils;
@@ -30,13 +31,14 @@ public class FlightReader {
         try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
-           // flightReader.averageDurationPerAirline(flightList);
-            flightReader.flightsArrInFrankfurt(flightList);
 
-            //flightReader.totalFlightTimeForSpecificAirline2(flightList);
-            /*
-            flightInfoList.forEach(f -> {
-                System.out.println("\n" + f);
+
+            flightReader.flightsArrInFrankfurt(flightList);
+            List<DTOs.AirportTime> airportTimes = flightReader.getAirportTimesFromFile("flights.json");
+           // flightReader.totalFlightTimeForSpecificAirline2(flightList);
+            flightReader.flightsSortedByTimezone(flightList,"Europe/Moscow");
+           /* flightInfoList.forEach(f->{
+                System.out.println("\n"+f);
             });
 
              */
@@ -125,4 +127,30 @@ public Map<DTOs.AirlineDTO, Double> totalFlightTimeForSpecificAirline2(List<DTOs
     return totalAirtime;
 }
 
+    public Map<DTOs.AirlineDTO, Double> totalFlightTimeForSpecificAirline2(List<DTOs.FlightDTO> flightList) {
+        Map<DTOs.AirlineDTO, Double> totalAirtime = flightList.stream()
+                .filter(flightDTO -> flightDTO.getAirline() != null && "Lufthansa".equals(flightDTO.getAirline().getName()))  // Filter for Lufthansa
+                .collect(Collectors.groupingBy(
+                        flightDTO -> flightDTO.getAirline(),  // Group by Airline name
+                        Collectors.summingDouble(flight -> {
+                            Duration duration = Duration.between(flight.getDeparture().getScheduled(), flight.getArrival().getScheduled());
+                            return duration.toMinutes();  // Convert duration to minutes
+                        })
+                ));
+        totalAirtime.forEach((airline,totalTime)-> System.out.println("Airline: "+airline+", total airtime: " +totalTime));
+        return totalAirtime;
+    }
+
+    public void flightsSortedByTimezone(List<DTOs.FlightDTO> airportTimes,String timeZone){
+
+        Map<String,List<DTOs.FlightDTO>> flightsByTimeZone = airportTimes.stream()
+                .filter(airportTime -> airportTime.getDeparture().getTimezone() != null && timeZone.contentEquals(airportTime.getDeparture().getTimezone()))
+                .collect(Collectors.groupingBy(airportTime -> airportTime.getDeparture().getAirport())
+                );
+
+
+        flightsByTimeZone.forEach((timezone,airport) -> System.out.println("\n" + "Timezone: " + timezone + ", airport: " + airport+"\n"));
+    }
 }
+
+
