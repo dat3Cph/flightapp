@@ -11,7 +11,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FlightReaderTest {
-    FlightReader instance = new FlightReader();
+    FlightReader reader = new FlightReader();
+    FlightWriter writer = new FlightWriter();
 
     @BeforeEach
     void setUp() {
@@ -21,11 +22,11 @@ class FlightReaderTest {
     void tearDown() {
     }
 
-//    @Test
-    @DisplayName("Test if reader method works")
+//    @Test // This test requires an API key and a free account only has 100 requests per month, so run this test with caution.
+    @DisplayName("Test if url writer method works")
     void reader() {
         try {
-            List<FlightReader.FlightDTO> flightList = instance.reader("https://api.aviationstack.com/v1/flights?access_key=%s&limit=%s&offset=%s", 1, 10);
+            List<DTOs.FlightDTO> flightList = writer.writeFlightsToFile(1, 10);
             assertEquals(10, flightList.size());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -34,11 +35,12 @@ class FlightReaderTest {
 
 
     @Test
-    @DisplayName("Test reading Json Array from file using Jackson")
-    void jsonFromFile() {
+    @DisplayName("Test getting stream info from collection")
+    void getInfo() {
         try {
-            List<FlightReader.FlightDTO> flights = instance.jsonFromFile("flights.json");
-            assertEquals(5000, flights.size());
+            List<DTOs.FlightDTO> flights = reader.getFlightsFromFile("flights.json");
+            List<DTOs.FlightInfo> flightInfoList = reader.getFlightInfoDetails(flights);
+            assertEquals("Royal Jordanian", flightInfoList.get(0).getAirline());
 
         } catch (IOException e) {
             throw new RuntimeException(e);
