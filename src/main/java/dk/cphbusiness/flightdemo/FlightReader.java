@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Purpose:
@@ -23,9 +24,9 @@ import java.util.*;
  */
 public class FlightReader {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         FlightReader flightReader = new FlightReader();
-        try {
+       /* try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
             flightInfoList.forEach(f->{
@@ -33,7 +34,18 @@ public class FlightReader {
             });
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
+        List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
+        //Add a new feature (Sort flighttime by duration)
+      List<DTOs.FlightInfo> flightsbetween = flightInfoList.stream()
+               .sorted(Comparator.comparing(DTOs.FlightInfo::getDuration))
+               .collect(Collectors.toList());
+
+        flightsbetween.forEach(f->{
+            System.out.println("\n"+f);
+        });
     }
 
 
@@ -41,7 +53,6 @@ public class FlightReader {
 //        List<FlightDTO> flights = getObjectMapper().readValue(Paths.get(fileName).toFile(), List.class);
 //        return flights;
 //    }
-
 
     public List<DTOs.FlightInfo> getFlightInfoDetails(List<DTOs.FlightDTO> flightList) {
         List<DTOs.FlightInfo> flightInfoList = flightList.stream().map(flight -> {
