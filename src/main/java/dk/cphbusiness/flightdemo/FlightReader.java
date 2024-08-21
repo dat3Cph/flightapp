@@ -30,11 +30,12 @@ public class FlightReader {
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
 
             OptionalDouble averageTime = flightInfoList.stream()
-                    .filter(info -> info.getAirline().equals("Lufthansa"))
+                    .filter(info -> info.getAirline() != null && info.getAirline().equals("Lufthansa"))
                     .map(DTOs.FlightInfo::getDuration) // Map to durations
                     .mapToLong(Duration::toMinutes) // Convert Duration to minutes
                     .average(); // Calculate average
 
+            averageTime.ifPresent(System.out::println);
 
             //List<DTOs.FlightInfo> flightInfoList1 = flightInfoList.stream()
             //     .filter(info -> info.getAirline()).toList();
