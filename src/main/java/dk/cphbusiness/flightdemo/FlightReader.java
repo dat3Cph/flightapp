@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Purpose:
@@ -23,25 +24,46 @@ import java.util.*;
  */
 public class FlightReader {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         FlightReader flightReader = new FlightReader();
-        try {
+       /* try {
             List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
             List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
+            /*
             flightInfoList.forEach(f->{
                 System.out.println("\n"+f);
             });
+            */
+            List<DTOs.FlightInfo> lufthansaFlights = flightInfoList.stream().filter(flight -> "Lufthansa".equalsIgnoreCase(flight.getAirline())).collect(Collectors.toList());
+            System.out.println(lufthansaFlights);
+            List<Long> flightDurations = lufthansaFlights.stream().map(flight -> flight.getDuration().toMinutes()).collect(Collectors.toList());
+            System.out.println(flightDurations);
+            Double average = flightDurations.stream().mapToLong(Long::longValue).average().orElse(0);
+            System.out.println(average);
+            Long total = flightDurations.stream().mapToLong(Long::longValue).sum();
+            System.out.println(total/60);
+
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        List<DTOs.FlightDTO> flightList = flightReader.getFlightsFromFile("flights.json");
+        List<DTOs.FlightInfo> flightInfoList = flightReader.getFlightInfoDetails(flightList);
+        //Add a new feature (Sort flighttime by duration)
+      List<DTOs.FlightInfo> flightsbetween = flightInfoList.stream()
+               .sorted(Comparator.comparing(DTOs.FlightInfo::getDuration))
+               .collect(Collectors.toList());
+
+        flightsbetween.forEach(f->{
+            System.out.println("\n"+f);
+        });
     }
 
-
+//test
 //    public List<FlightDTO> jsonFromFile(String fileName) throws IOException {
 //        List<FlightDTO> flights = getObjectMapper().readValue(Paths.get(fileName).toFile(), List.class);
 //        return flights;
 //    }
-
 
     public List<DTOs.FlightInfo> getFlightInfoDetails(List<DTOs.FlightDTO> flightList) {
         List<DTOs.FlightInfo> flightInfoList = flightList.stream().map(flight -> {
